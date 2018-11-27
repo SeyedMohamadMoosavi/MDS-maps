@@ -72,12 +72,15 @@ class MDSplot():
 
     def setup(self,options):
         self.SimilarityFile=options.SimilarityMatrix
-        with open(options.filenames,"r") as fn:
-            self.names=[n.strip() for n in fn.readlines()]
         self.SimilarityCutoff=float(options.SimCutoff)
         self.RNDseed=int(options.RandomSeed)
         np.random.seed(self.RNDseed)
-        self.similarity=self.read_tri_matrix(self.SimilarityFile,len(self.names))
+        self.similarity=self.read_tri_matrix(self.SimilarityFile)
+        if options.filenames:
+            with open(options.filenames,"r") as fn:
+                self.names=[n.strip() for n in fn.readlines()]
+        else:
+            self.names=["X" for n in range(len(self.similarity))]
         self.labels=options.labels
         self.labels_file=options.labels_file
         if options.space_colmap:
@@ -117,14 +120,14 @@ class MDSplot():
         colorparams=[row[ind] for row in prop]
         return colorparams
 
-    def read_tri_matrix(self,filename,n):
+    def read_tri_matrix(self,filename):
         # this function reads a lower triangular matrix and generate the full matrix.
         with open(filename,"r") as inputdata:
             data=inputdata.readlines()
-        if not len(data)==n:
-            print("the input distance matrix has not the same size of names!\n")
-            sys.exit()
-
+        #if not len(data)==n:
+        #    print("the input distance matrix has not the same size of names!\n")
+        #    sys.exit()
+        n=len(data)
         dmat=np.zeros([n,n])
         for i,line in enumerate(data):
             dists=[entry for entry in line.strip().split(",")]
